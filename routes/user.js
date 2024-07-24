@@ -4,7 +4,7 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-router.post("/signin", async (req,res) =>{
+router.post("/signup", async (req,res) =>{
     try{
     const {username} = req.body;
     const {email} = req.body;
@@ -26,14 +26,14 @@ router.post("/signin", async (req,res) =>{
 
     const hashPassword = await bcrypt.hash(req.body.password,10)
 
-   const newUser = new User({
+    const newUser = new User({
     username: req.body.username,
     email: req.body.email,
     password: hashPassword
    })
     await newUser.save();
     return res.status(200).json({
-        message: "SignIn successfully"
+        message: "Signed up successfully"
     })
 
     }
@@ -46,7 +46,7 @@ router.post("/signin", async (req,res) =>{
     
 })
 
-router.get("/login", async (req,res) =>{
+router.post("/login", async (req,res) =>{
     try{
         const {username} = req.body;
         const {password} = req.body;

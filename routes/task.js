@@ -32,14 +32,14 @@ router.post("/CreateTask", authenticateToken, async(req,res) => {
 
 })
 
-router.get("./getAllTasks",authenticateToken, async (req,res) => {
+router.get("/getAllTasks",authenticateToken, async (req,res) => {
       try{
         const {id} = req.headers;
         const userData = await User.findById(id).populate({
             path: "tasks",
             options: { sort: {createdAt:-1}},
         });
-        return res.status(200).json({
+        res.status(200).json({
             data: userData
         })
       }
@@ -52,14 +52,14 @@ router.get("./getAllTasks",authenticateToken, async (req,res) => {
 })
 
 
-router.delete("./deleteTask/:id", authenticateToken, async (req,res) => {
+router.delete("/deleteTask/:id", authenticateToken, async (req,res) => {
     try{
       const {id} = req.params;
       const userId = req.headers.id;
 
       await Task.findByIdAndDelete(id);
       await User.findByIdAndUpdate( userId, { $pull: {tasks:id}})
-      return res.status(200).json({
+       res.status(200).json({
         message: " Task deleted Successfully"
     })
     }
@@ -71,12 +71,12 @@ router.delete("./deleteTask/:id", authenticateToken, async (req,res) => {
     }
 })
 
-router.put("./updateTask/:id", authenticateToken, async (req,res) => {
+router.put("/updateTask/:id", authenticateToken, async (req,res) => {
     try{
       const {id} = req.params;
       const {title, desc} = req.body;
       await Task.findByIdAndUpdate( id, { title:title, desc: desc})
-      return res.status(200).json({
+      res.status(200).json({
         message: " Task updated Successfully"
     })
     }
@@ -88,7 +88,7 @@ router.put("./updateTask/:id", authenticateToken, async (req,res) => {
     }
 })
 
-router.put("./updateImportantTask/:id", authenticateToken, async (req,res) => {
+router.put("/updateImportantTask/:id", authenticateToken, async (req,res) => {
     try{
       const {id} = req.params;
       const TaskData =  await Task.findById( id)
@@ -107,7 +107,7 @@ router.put("./updateImportantTask/:id", authenticateToken, async (req,res) => {
 })
 
 
-router.put("./completeTask/:id", authenticateToken, async (req,res) => {
+router.put("/completeTask/:id", authenticateToken, async (req,res) => {
     try{
       const {id} = req.params;
       const TaskData =  await Task.findById( id)
@@ -126,7 +126,7 @@ router.put("./completeTask/:id", authenticateToken, async (req,res) => {
 })
 
 
-router.get("./getCompleteTasks", authenticateToken, async (req,res) => {
+router.get("/getCompleteTasks", authenticateToken, async (req,res) => {
     try{
       const {id} = req.headers;
       const Data = await User.findById(id).populate({
@@ -149,7 +149,30 @@ router.get("./getCompleteTasks", authenticateToken, async (req,res) => {
 })
 
 
-router.get("./getIncompleteTasks",authenticateToken, async (req,res) => {
+router.get("/getImpTasks", authenticateToken, async (req,res) => {
+  try{
+    const {id} = req.headers;
+    const Data = await User.findById(id).populate({
+        path: "tasks",
+        match: {important:true},
+        options: { sort: {createdAt:-1}},
+    });
+
+    const ImpTaskData = Data.tasks;
+    return res.status(200).json({
+        data: ImpTaskData
+    })
+  }
+  catch(error){
+    console.log(error);
+    res.status(400).json({
+        message: "Internal Server error"
+    })
+  }
+})
+
+
+router.get("/getIncompleteTasks",authenticateToken, async (req,res) => {
     try{
       const {id} = req.headers;
       const Data = await User.findById(id).populate({
